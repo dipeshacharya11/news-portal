@@ -1,0 +1,475 @@
+{% extends 'custom_admin/base.html' %}
+{% load static %}
+
+{% block title %}NewsData.io API Management{% endblock %}
+
+{% block extra_css %}
+<style>
+    .api-status-card {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    .status-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.5rem 0;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    
+    .status-item:last-child {
+        border-bottom: none;
+    }
+    
+    .status-value {
+        font-weight: 600;
+        font-size: 1.1rem;
+    }
+    
+    .fetch-controls {
+        background: #f8f9fa;
+        border-radius: 8px;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    .category-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+        margin-top: 1rem;
+    }
+    
+    .category-card {
+        background: white;
+        border: 2px solid #e9ecef;
+        border-radius: 8px;
+        padding: 1rem;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    
+    .category-card:hover {
+        border-color: #007bff;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 123, 255, 0.15);
+    }
+    
+    .category-card.selected {
+        border-color: #007bff;
+        background: #e7f3ff;
+    }
+    
+    .log-output {
+        background: #1e1e1e;
+        color: #00ff00;
+        font-family: 'Courier New', monospace;
+        padding: 1rem;
+        border-radius: 8px;
+        max-height: 400px;
+        overflow-y: auto;
+        white-space: pre-wrap;
+        margin-top: 1rem;
+    }
+    
+    .loading-spinner {
+        display: none;
+        text-align: center;
+        padding: 2rem;
+    }
+    
+    .progress-bar {
+        height: 4px;
+        background: #e9ecef;
+        border-radius: 2px;
+        overflow: hidden;
+        margin-top: 1rem;
+    }
+    
+    .progress-fill {
+        height: 100%;
+        background: linear-gradient(90deg, #007bff, #0056b3);
+        width: 0%;
+        transition: width 0.3s ease;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1><i class="fas fa-rss"></i> NewsData.io API Management</h1>
+                <button class="btn btn-outline-primary" onclick="refreshStatus()">
+                    <i class="fas fa-sync-alt"></i> Refresh Status
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- API Status Card -->
+    <div class="row">
+        <div class="col-md-6">
+            <div class="api-status-card">
+                <h4><i class="fas fa-chart-line"></i> API Status</h4>
+                <div id="api-status-content">
+                    <div class="status-item">
+                        <span>API Key Status:</span>
+                        <span class="status-value" id="api-key-status">Loading...</span>
+                    </div>
+                    <div class="status-item">
+                        <span>Hourly Requests:</span>
+                        <span class="status-value" id="hourly-requests">Loading...</span>
+                    </div>
+                    <div class="status-item">
+                        <span>Daily Requests:</span>
+                        <span class="status-value" id="daily-requests">Loading...</span>
+                    </div>
+                    <div class="status-item">
+                        <span>Cache Timeout:</span>
+                        <span class="status-value" id="cache-timeout">Loading...</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-cogs"></i> Quick Actions</h5>
+                </div>
+                <div class="card-body">
+                    <button class="btn btn-danger btn-block mb-2" onclick="fetchBreakingNews()">
+                        <i class="fas fa-exclamation-triangle"></i> Fetch Breaking News
+                    </button>
+                    <button class="btn btn-info btn-block mb-2" onclick="clearCache()">
+                        <i class="fas fa-trash"></i> Clear Cache
+                    </button>
+                    <button class="btn btn-success btn-block" onclick="fetchAllCategories()">
+                        <i class="fas fa-download"></i> Fetch All Categories
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- News Fetching Controls -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="fetch-controls">
+                <h5><i class="fas fa-newspaper"></i> Fetch News by Category</h5>
+                <p class="text-muted">Select categories to fetch the latest news articles</p>
+                
+                <div class="category-grid" id="category-grid">
+                    <!-- Categories will be loaded here -->
+                </div>
+                
+                <div class="row mt-3">
+                    <div class="col-md-4">
+                        <label for="article-count">Number of Articles:</label>
+                        <select class="form-control" id="article-count">
+                            <option value="10">10 articles</option>
+                            <option value="20" selected>20 articles</option>
+                            <option value="30">30 articles</option>
+                            <option value="50">50 articles</option>
+                        </select>
+                    </div>
+                    <div class="col-md-8 d-flex align-items-end">
+                        <button class="btn btn-primary" onclick="fetchSelectedCategories()">
+                            <i class="fas fa-download"></i> Fetch Selected Categories
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progress-fill"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Loading Spinner -->
+    <div class="loading-spinner" id="loading-spinner">
+        <div class="spinner-border text-primary" role="status">
+            <span class="sr-only">Loading...</span>
+        </div>
+        <p class="mt-2">Fetching news articles...</p>
+    </div>
+    
+    <!-- Log Output -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5><i class="fas fa-terminal"></i> Operation Log</h5>
+                    <button class="btn btn-sm btn-outline-secondary" onclick="clearLog()">
+                        <i class="fas fa-eraser"></i> Clear Log
+                    </button>
+                </div>
+                <div class="card-body p-0">
+                    <div class="log-output" id="log-output">
+                        Welcome to NewsData.io API Management Console
+                        Ready to fetch news articles...
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+let selectedCategories = [];
+
+// Initialize page
+document.addEventListener('DOMContentLoaded', function() {
+    loadAPIStatus();
+    loadCategories();
+});
+
+// Load API status
+async function loadAPIStatus() {
+    try {
+        const response = await fetch('/api/newsdata/status/');
+        const data = await response.json();
+        
+        if (data.status === 'success') {
+            updateStatusDisplay(data.api_status, data.settings);
+        } else {
+            logMessage('Error loading API status: ' + data.message, 'error');
+        }
+    } catch (error) {
+        logMessage('Failed to load API status: ' + error.message, 'error');
+    }
+}
+
+// Update status display
+function updateStatusDisplay(apiStatus, settings) {
+    document.getElementById('api-key-status').textContent = 
+        apiStatus.api_key_configured ? '✅ Configured' : '❌ Missing';
+    
+    document.getElementById('hourly-requests').textContent = 
+        `${apiStatus.hourly_requests}/${apiStatus.hourly_limit}`;
+    
+    document.getElementById('daily-requests').textContent = 
+        `${apiStatus.daily_requests}/${apiStatus.daily_limit}`;
+    
+    document.getElementById('cache-timeout').textContent = 
+        `${settings.cache_timeout}s`;
+}
+
+// Load available categories
+async function loadCategories() {
+    try {
+        const response = await fetch('/api/newsdata/categories/');
+        const data = await response.json();
+        
+        if (data.status === 'success') {
+            displayCategories(data.categories);
+        }
+    } catch (error) {
+        logMessage('Failed to load categories: ' + error.message, 'error');
+    }
+}
+
+// Display categories
+function displayCategories(categories) {
+    const grid = document.getElementById('category-grid');
+    grid.innerHTML = '';
+    
+    categories.forEach(category => {
+        const card = document.createElement('div');
+        card.className = 'category-card';
+        card.dataset.categoryId = category.id;
+        card.innerHTML = `
+            <h6>${category.name}</h6>
+            <small class="text-muted">${category.description}</small>
+        `;
+        
+        card.addEventListener('click', () => toggleCategory(category.id, card));
+        grid.appendChild(card);
+    });
+}
+
+// Toggle category selection
+function toggleCategory(categoryId, element) {
+    if (selectedCategories.includes(categoryId)) {
+        selectedCategories = selectedCategories.filter(id => id !== categoryId);
+        element.classList.remove('selected');
+    } else {
+        selectedCategories.push(categoryId);
+        element.classList.add('selected');
+    }
+}
+
+// Fetch breaking news
+async function fetchBreakingNews() {
+    showLoading(true);
+    logMessage('🚨 Fetching breaking news...', 'info');
+    
+    try {
+        const response = await fetch('/api/newsdata/fetch/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCsrfToken()
+            },
+            body: JSON.stringify({
+                breaking_only: true
+            })
+        });
+        
+        const data = await response.json();
+        
+        if (data.status === 'success') {
+            logMessage('✅ Breaking news fetch completed', 'success');
+            logMessage(data.output, 'output');
+        } else {
+            logMessage('❌ Error: ' + data.message, 'error');
+        }
+    } catch (error) {
+        logMessage('❌ Failed to fetch breaking news: ' + error.message, 'error');
+    } finally {
+        showLoading(false);
+    }
+}
+
+// Fetch selected categories
+async function fetchSelectedCategories() {
+    if (selectedCategories.length === 0) {
+        alert('Please select at least one category');
+        return;
+    }
+    
+    showLoading(true);
+    const articleCount = document.getElementById('article-count').value;
+    
+    logMessage(`📰 Fetching ${articleCount} articles from ${selectedCategories.length} categories...`, 'info');
+    
+    for (let i = 0; i < selectedCategories.length; i++) {
+        const category = selectedCategories[i];
+        updateProgress((i / selectedCategories.length) * 100);
+        
+        try {
+            const response = await fetch('/api/newsdata/fetch/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCsrfToken()
+                },
+                body: JSON.stringify({
+                    category: category,
+                    size: Math.ceil(articleCount / selectedCategories.length)
+                })
+            });
+            
+            const data = await response.json();
+            
+            if (data.status === 'success') {
+                logMessage(`✅ ${category}: Completed`, 'success');
+            } else {
+                logMessage(`❌ ${category}: ${data.message}`, 'error');
+            }
+        } catch (error) {
+            logMessage(`❌ ${category}: ${error.message}`, 'error');
+        }
+    }
+    
+    updateProgress(100);
+    logMessage('🎉 All categories fetch completed!', 'success');
+    showLoading(false);
+    setTimeout(() => updateProgress(0), 2000);
+}
+
+// Fetch all categories
+async function fetchAllCategories() {
+    showLoading(true);
+    logMessage('📰 Fetching all categories...', 'info');
+    
+    try {
+        const response = await fetch('/api/newsdata/fetch/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCsrfToken()
+            },
+            body: JSON.stringify({
+                size: 30
+            })
+        });
+        
+        const data = await response.json();
+        
+        if (data.status === 'success') {
+            logMessage('✅ All categories fetch completed', 'success');
+            logMessage(data.output, 'output');
+        } else {
+            logMessage('❌ Error: ' + data.message, 'error');
+        }
+    } catch (error) {
+        logMessage('❌ Failed to fetch all categories: ' + error.message, 'error');
+    } finally {
+        showLoading(false);
+    }
+}
+
+// Clear cache
+async function clearCache() {
+    try {
+        const response = await fetch('/api/newsdata/refresh-cache/', {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': getCsrfToken()
+            }
+        });
+        
+        const data = await response.json();
+        
+        if (data.status === 'success') {
+            logMessage('✅ Cache cleared successfully', 'success');
+            loadAPIStatus(); // Refresh status
+        } else {
+            logMessage('❌ Error clearing cache: ' + data.message, 'error');
+        }
+    } catch (error) {
+        logMessage('❌ Failed to clear cache: ' + error.message, 'error');
+    }
+}
+
+// Utility functions
+function showLoading(show) {
+    document.getElementById('loading-spinner').style.display = show ? 'block' : 'none';
+}
+
+function updateProgress(percent) {
+    document.getElementById('progress-fill').style.width = percent + '%';
+}
+
+function logMessage(message, type = 'info') {
+    const logOutput = document.getElementById('log-output');
+    const timestamp = new Date().toLocaleTimeString();
+    const prefix = type === 'error' ? '❌' : type === 'success' ? '✅' : type === 'output' ? '📄' : 'ℹ️';
+    
+    logOutput.textContent += `\n[${timestamp}] ${prefix} ${message}`;
+    logOutput.scrollTop = logOutput.scrollHeight;
+}
+
+function clearLog() {
+    document.getElementById('log-output').textContent = 'Log cleared...\nReady for new operations...';
+}
+
+function refreshStatus() {
+    loadAPIStatus();
+    logMessage('🔄 Status refreshed', 'info');
+}
+
+function getCsrfToken() {
+    return document.querySelector('[name=csrfmiddlewaretoken]')?.value || '';
+}
+</script>
+{% endblock %}

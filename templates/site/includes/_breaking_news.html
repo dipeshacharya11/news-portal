@@ -1,0 +1,137 @@
+{% load static %}
+
+<!-- Modern Breaking News Banner -->
+{% if breaking_news or breaking_news_items %}
+<div class="breaking-news-modern" id="breakingNewsBanner">
+    <div class="breaking-container">
+        <div class="breaking-content">
+            <div class="breaking-label">
+                <div class="breaking-icon">
+                    <i class="fas fa-bolt"></i>
+                </div>
+                <span class="breaking-text">BREAKING</span>
+                <div class="breaking-pulse"></div>
+            </div>
+
+            <div class="breaking-ticker-container">
+                <div class="breaking-ticker" id="breakingNewsTicker">
+                    {% if breaking_news %}
+                        {% for news in breaking_news %}
+                            <div class="breaking-item" data-breaking="true">
+                                <span class="breaking-title">{{ news.title }}</span>
+                                {% if news.content %}
+                                    <span class="breaking-desc">{{ news.content|truncatechars:80 }}</span>
+                                {% endif %}
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                    {% if breaking_news_items %}
+                        {% for news in breaking_news_items %}
+                            <div class="breaking-item" data-breaking="true">
+                                <span class="breaking-title">{{ news.title }}</span>
+                                {% if news.description %}
+                                    <span class="breaking-desc">{{ news.description|truncatechars:80 }}</span>
+                                {% endif %}
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="breaking-controls">
+                <button class="breaking-close" onclick="closeBreakingNews()" title="Close breaking news">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% else %}
+<!-- Hidden banner for dynamic content -->
+<div class="breaking-news-modern" id="breakingNewsBanner" style="display: none;">
+    <div class="breaking-container">
+        <div class="breaking-content">
+            <div class="breaking-label">
+                <div class="breaking-icon">
+                    <i class="fas fa-bolt"></i>
+                </div>
+                <span class="breaking-text">BREAKING</span>
+                <div class="breaking-pulse"></div>
+            </div>
+
+            <div class="breaking-ticker-container">
+                <div class="breaking-ticker" id="breakingNewsTicker">
+                    <!-- Dynamic content will be inserted here -->
+                </div>
+            </div>
+
+            <div class="breaking-controls">
+                <button class="breaking-close" onclick="closeBreakingNews()" title="Close breaking news">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<script>
+function closeBreakingNews() {
+    const banner = document.getElementById('breakingNewsBanner');
+    if (banner) {
+        banner.classList.add('breaking-closing');
+        setTimeout(() => {
+            banner.style.display = 'none';
+            localStorage.setItem('breakingNewsClosed', 'true');
+        }, 500);
+    }
+}
+
+// Modern breaking news management
+document.addEventListener('DOMContentLoaded', function() {
+    const wasClosed = localStorage.getItem('breakingNewsClosed');
+    const banner = document.getElementById('breakingNewsBanner');
+
+    if (wasClosed === 'true' && banner) {
+        banner.style.display = 'none';
+    }
+
+    // Auto-fade after 60 seconds
+    setTimeout(() => {
+        if (banner && banner.style.display !== 'none') {
+            banner.style.opacity = '0.9';
+            banner.style.transition = 'opacity 2s ease';
+        }
+    }, 60000);
+
+    // Reset closed state after 2 hours
+    setTimeout(() => {
+        localStorage.removeItem('breakingNewsClosed');
+    }, 7200000);
+
+    // Start ticker animation
+    startBreakingTicker();
+});
+
+function startBreakingTicker() {
+    const ticker = document.getElementById('breakingNewsTicker');
+    if (ticker && ticker.children.length > 0) {
+        ticker.style.animation = 'breakingScroll 30s linear infinite';
+    }
+}
+
+function refreshBreakingNews() {
+    if (typeof checkBreakingNews === 'function') {
+        checkBreakingNews();
+        startBreakingTicker();
+    }
+}
+
+// Add refresh functionality
+document.addEventListener('DOMContentLoaded', function() {
+    const banner = document.getElementById('breakingNewsBanner');
+    if (banner) {
+        banner.addEventListener('dblclick', refreshBreakingNews);
+    }
+});
+</script>

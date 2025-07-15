@@ -12,8 +12,10 @@
                     ><img
                         class="media-object"
                         style="width: 100px; height: 100px"
-                        src="{% if news.thumbnail_url %}  {{ news.thumbnail_url }} {% else %}{{ news.thumbnail.url }}{% endif %}"
-                        alt="Generic placeholder image"
+                        src="{% if news.thumbnail_url %}{{ news.thumbnail_url }}{% elif news.thumbnail %}{{ news.thumbnail.url }}{% else %}{% static 'assets/img/pop_right1.jpg' %}{% endif %}"
+                        alt="{{ news.title }}"
+                        onerror="this.src='{% static 'assets/img/pop_right1.jpg' %}'"
+                        loading="lazy"
                 /></a>
             </div>
             <div class="media-body">
@@ -188,8 +190,10 @@
                     ><img
                         class="media-object"
                         style="width: 100px; height: 100px"
-                        src="{% if post.thumbnail_url %}  {{ post.thumbnail_url }} {% else %}{{ post.thumbnail.url }}{% endif %}"
-                        alt="Generic placeholder image"
+                        src="{% if post.thumbnail_url %}{{ post.thumbnail_url }}{% elif post.thumbnail %}{{ post.thumbnail.url }}{% else %}{% static 'assets/img/pop_right2.jpg' %}{% endif %}"
+                        alt="{{ post.title }}"
+                        onerror="this.src='{% static 'assets/img/pop_right2.jpg' %}'"
+                        loading="lazy"
                 /></a>
             </div>
             <div class="media-body">

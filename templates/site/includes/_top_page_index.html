@@ -3,7 +3,11 @@
 <div class="col-md-5">
     <div class="feature_static_wrapper">
         <div class="feature_article_img">
-            <img style="height: 269.717px; width: 457.5px;" class="img-responsive" src="{% if trending.thumbnail_url %}  {{ trending.thumbnail_url }} {% else %}{{ trending.thumbnail.url }}{% endif %}" alt="feature-top">
+            <img style="height: 269.717px; width: 457.5px;" class="img-responsive"
+                src="{% if trending.thumbnail_url %}{{ trending.thumbnail_url }}{% elif trending.thumbnail %}{{ trending.thumbnail.url }}{% else %}{% static 'assets/img/feature-static1.jpg' %}{% endif %}"
+                alt="{{ trending.title }}"
+                onerror="this.src='{% static 'assets/img/feature-static1.jpg' %}'"
+                loading="lazy">
         </div>
         <!-- feature_article_img -->
 
@@ -41,7 +45,11 @@
 <div class="col-md-5">
     <div class="feature_static_last_wrapper">
         <div class="feature_article_img">
-            <img style="height: 269.717px; width: 457.5px;" class="img-responsive" src="{% if editor_choice.thumbnail_url %}  {{ editor_choice.thumbnail_url }} {% else %}{{ editor_choice.thumbnail.url }}{% endif %}" alt="feature-top">
+            <img style="height: 269.717px; width: 457.5px;" class="img-responsive"
+                src="{% if editor_choice.thumbnail_url %}{{ editor_choice.thumbnail_url }}{% elif editor_choice.thumbnail %}{{ editor_choice.thumbnail.url }}{% else %}{% static 'assets/img/feature-static2.jpg' %}{% endif %}"
+                alt="{{ editor_choice.title }}"
+                onerror="this.src='{% static 'assets/img/feature-static2.jpg' %}'"
+                loading="lazy">
         </div>
         <!-- feature_article_img -->
 

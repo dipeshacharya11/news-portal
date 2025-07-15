@@ -1,0 +1,87 @@
+<!-- Advertisement Modal (Popup) -->
+<div class="modal fade" id="adModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content border-0">
+            <div class="modal-header border-0">
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-center p-0">
+                <div id="popup-ad-content">
+                    <!-- Popup ad content will be loaded here -->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Ad Click Tracking Script -->
+<script>
+function trackAdClick(adId, url) {
+    // Track ad click
+    fetch(`/api/ads/click/${adId}/`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+            'Content-Type': 'application/json',
+        },
+    }).then(() => {
+        if (url) {
+            window.open(url, '_blank');
+        }
+    }).catch(error => {
+        console.error('Error tracking ad click:', error);
+        if (url) {
+            window.open(url, '_blank');
+        }
+    });
+}
+
+function trackAdImpression(adId) {
+    // Track ad impression
+    fetch(`/api/ads/impression/${adId}/`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+            'Content-Type': 'application/json',
+        },
+    }).catch(error => {
+        console.error('Error tracking ad impression:', error);
+    });
+}
+
+// Auto-show popup ad after 10 seconds (if enabled)
+document.addEventListener('DOMContentLoaded', function() {
+    setTimeout(() => {
+        const adModal = document.getElementById('adModal');
+        if (adModal && !sessionStorage.getItem('popupAdShown')) {
+            loadPopupAd();
+            sessionStorage.setItem('popupAdShown', 'true');
+        }
+    }, 10000);
+});
+
+function loadPopupAd() {
+    fetch('/api/ads/popup/')
+        .then(response => response.json())
+        .then(data => {
+            if (data.ad) {
+                const adContent = document.getElementById('popup-ad-content');
+                adContent.innerHTML = data.ad.html_content || `
+                    <img src="${data.ad.image}" alt="${data.ad.title}" 
+                         class="img-fluid" style="max-height: 400px; cursor: pointer;"
+                         onclick="trackAdClick(${data.ad.id}, '${data.ad.url}')">
+                `;
+                
+                // Track impression
+                trackAdImpression(data.ad.id);
+                
+                // Show modal
+                const modal = new bootstrap.Modal(document.getElementById('adModal'));
+                modal.show();
+            }
+        })
+        .catch(error => {
+            console.error('Error loading popup ad:', error);
+        });
+}
+</script>

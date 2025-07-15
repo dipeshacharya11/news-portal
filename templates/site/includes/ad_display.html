@@ -1,0 +1,65 @@
+{% load static %}
+{% load ad_tags %}
+
+{% if ad %}
+<div class="ad-container {{ css_class }}" data-ad-type="{{ ad_type }}">
+    <!-- Active Advertisement -->
+    <div class="ad-content">
+        <span class="ad-label">Advertisement</span>
+
+        {% if ad.html_content %}
+            <!-- Custom HTML/JS Ad -->
+            <div class="ad-html-content">
+                {{ ad.html_content|safe }}
+            </div>
+        {% elif ad.image %}
+            <!-- Image Ad -->
+            <div class="ad-image-content">
+                {% if ad.url %}
+                    <a href="{% ad_click_url ad %}" target="_blank" rel="noopener" onclick="trackAdClick({{ ad.id }})">
+                        <img src="{{ ad.image.url }}"
+                             alt="{{ ad.title }}"
+                             class="ad-image"
+                             onerror="this.src='{% static 'assets/img/category_advertisement.jpg' %}'"
+                             loading="lazy">
+                    </a>
+                {% else %}
+                    <img src="{{ ad.image.url }}"
+                         alt="{{ ad.title }}"
+                         class="ad-image"
+                         onerror="this.src='{% static 'assets/img/category_advertisement.jpg' %}'"
+                         loading="lazy">
+                {% endif %}
+            </div>
+        {% else %}
+            <!-- Text Ad -->
+            <div class="ad-text-content">
+                {% if ad.url %}
+                    <a href="{% ad_click_url ad %}" target="_blank" rel="noopener" onclick="trackAdClick({{ ad.id }})">
+                        <h4>{{ ad.title }}</h4>
+                    </a>
+                {% else %}
+                    <h4>{{ ad.title }}</h4>
+                {% endif %}
+            </div>
+        {% endif %}
+
+        <!-- Track impression -->
+        {% increment_ad_impressions ad.id %}
+    </div>
+</div>
+
+<script>
+function trackAdClick(adId) {
+    // Track ad click via AJAX
+    fetch('/ad-click/' + adId + '/', {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({})
+    }).catch(error => console.log('Ad tracking error:', error));
+}
+</script>
+{% endif %}

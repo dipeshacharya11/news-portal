@@ -1,0 +1,199 @@
+{% extends 'custom_admin/base.html' %}
+
+{% block title %}Dashboard{% endblock %}
+{% block page_title %}Dashboard{% endblock %}
+
+{% block content %}
+<!-- Stats Cards -->
+<div class="row mb-4">
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card stat-card">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-uppercase mb-1">Total Articles</div>
+                        <div class="h5 mb-0 font-weight-bold">{{ total_news }}</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-newspaper fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card stat-card-success">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-uppercase mb-1">Published</div>
+                        <div class="h5 mb-0 font-weight-bold">{{ published_news }}</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-check-circle fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card stat-card-info">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-uppercase mb-1">Total Users</div>
+                        <div class="h5 mb-0 font-weight-bold">{{ total_users }}</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-users fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card stat-card-warning">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-uppercase mb-1">Comments</div>
+                        <div class="h5 mb-0 font-weight-bold">{{ total_comments }}</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-comments fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Breaking News Alert -->
+{% if breaking_news %}
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card border-danger">
+            <div class="card-header bg-danger text-white">
+                <h5 class="mb-0"><i class="fas fa-exclamation-triangle"></i> Breaking News</h5>
+            </div>
+            <div class="card-body">
+                {% for news in breaking_news %}
+                <div class="alert alert-warning" role="alert">
+                    <strong>{{ news.title }}</strong><br>
+                    <small class="text-muted">{{ news.created_at|timesince }} ago</small>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Content Overview -->
+<div class="row">
+    <!-- Recent Articles -->
+    <div class="col-lg-8 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-clock"></i> Recent Articles</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Title</th>
+                                <th>Category</th>
+                                <th>Status</th>
+                                <th>Date</th>
+                                <th>Views</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for article in recent_news %}
+                            <tr>
+                                <td>
+                                    <strong>{{ article.title|truncatechars:50 }}</strong>
+                                    {% if article.is_featured %}
+                                        <span class="badge bg-warning">Featured</span>
+                                    {% endif %}
+                                    {% if article.is_breaking %}
+                                        <span class="badge bg-danger">Breaking</span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ article.category.name }}</td>
+                                <td>
+                                    {% if article.is_published %}
+                                        <span class="badge bg-success">Published</span>
+                                    {% else %}
+                                        <span class="badge bg-secondary">Draft</span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ article.timestamp|date:"M d, Y" }}</td>
+                                <td>{{ article.views_count }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Popular Categories -->
+    <div class="col-lg-4 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-chart-pie"></i> Popular Categories</h5>
+            </div>
+            <div class="card-body">
+                {% for category in popular_categories %}
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <div>
+                        <strong>{{ category.name }}</strong>
+                    </div>
+                    <span class="badge bg-primary">{{ category.news_count }}</span>
+                </div>
+                <div class="progress mb-3" style="height: 8px;">
+                    <div class="progress-bar" role="progressbar" 
+                         style="width: {% widthratio category.news_count total_news 100 %}%"></div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Recent Comments -->
+        <div class="card mt-4">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-comments"></i> Recent Comments</h5>
+            </div>
+            <div class="card-body">
+                {% for comment in recent_comments %}
+                <div class="border-bottom pb-2 mb-2">
+                    <small class="text-muted">{{ comment.user.username|default:"Anonymous" }}</small>
+                    <p class="mb-1">{{ comment.comment|truncatechars:80 }}</p>
+                    <small class="text-muted">{{ comment.timestamp|timesince }} ago</small>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Auto-refresh dashboard stats every 30 seconds
+setInterval(function() {
+    fetch('{% url "custom_admin:api_stats" %}')
+        .then(response => response.json())
+        .then(data => {
+            // Update stats if needed
+            console.log('Dashboard stats updated');
+        });
+}, 30000);
+</script>
+{% endblock %}

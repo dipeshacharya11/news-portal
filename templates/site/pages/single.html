@@ -44,7 +44,10 @@
 
                     <div class="entity_thumb">
                         <img class="img-responsive" style="width: 775px; max-height:450px;"
-                            src="{% if news.thumbnail_url %}  {{ news.thumbnail_url }} {% else %}{{ news.thumbnail.url }}{% endif %}" alt="feature-top">
+                            src="{% if news.thumbnail_url %}{{ news.thumbnail_url }}{% elif news.thumbnail %}{{ news.thumbnail.url }}{% else %}{% static 'assets/img/feature-top.jpg' %}{% endif %}"
+                            alt="{{ news.title }}"
+                            onerror="this.src='{% static 'assets/img/feature-top.jpg' %}'"
+                            loading="lazy">
                     </div>
                     <!-- entity_thumb -->
 
@@ -59,7 +62,7 @@
                         <div class="entity_tag">
 
                             {% for tag in news.tags.all %}
-                            <span class="blank"><a href="{% url 'newspaper:tag' tag %}">{{ tag }}</a></span>
+                            <span class="blank"><a href="{% url 'newspaper:tag' tag.slug %}">{{ tag }}</a></span>
                             {% endfor %}
 
                         </div>
@@ -90,9 +93,11 @@
                             <div class="col-md-6">
                                 <div class="media">
                                     <div class="media-left">
-                                        <a href="#"><img class="media-object" style="width: 122px; height: 122px;"
-                                                src="{% if post.thumbnail_url %}  {{ post.thumbnail_url }} {% else %}{{ post.thumbnail.url }}{% endif %}"
-                                                alt="Generic placeholder image"></a>
+                                        <a href="{{ post.get_absolute_url }}"><img class="media-object" style="width: 122px; height: 122px;"
+                                                src="{% if post.thumbnail_url %}{{ post.thumbnail_url }}{% elif post.thumbnail %}{{ post.thumbnail.url }}{% else %}{% static 'assets/img/category_img1.jpg' %}{% endif %}"
+                                                alt="{{ post.title }}"
+                                                onerror="this.src='{% static 'assets/img/category_img1.jpg' %}'"
+                                                loading="lazy"></a>
                                     </div>
                                     <div class="media-body">
                                         <span class="tag purple"><a href="{{ post.category.get_absolute_url }}"

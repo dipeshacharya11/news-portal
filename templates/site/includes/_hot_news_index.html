@@ -4,7 +4,10 @@
     <div class="feature_article_wrapper">
         <div class="feature_article_img">
             <img style="height: 570px; width: 652.5px;" class="img-responsive top_static_article_img"
-                src="{% if hot_news.thumbnail_url %}  {{ hot_news.thumbnail_url }} {% else %}{{ hot_news.thumbnail.url }}{% endif %}" alt="feature-top">
+                src="{% if hot_news.thumbnail_url %}{{ hot_news.thumbnail_url }}{% elif hot_news.thumbnail %}{{ hot_news.thumbnail.url }}{% else %}{% static 'assets/img/feature-top.jpg' %}{% endif %}"
+                alt="{{ hot_news.title }}"
+                onerror="this.src='{% static 'assets/img/feature-top.jpg' %}'"
+                loading="lazy">
         </div>
         <!-- feature_article_img -->
 

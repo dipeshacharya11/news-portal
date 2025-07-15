@@ -7,9 +7,7 @@
         <div class="row">
             <ol class="breadcrumb">
                 <li><a href="{% url 'newspaper:home'%}">Home</a></li>
-                <!-- <li><a href="#">News</a></li>
-                <li><a href="#">Tech</a></li> -->
-                <li class="active"><a href="{% url 'newspaper:tag' tag %}">{{ tag }}</a></li>
+                <li class="active"><a href="{% url 'newspaper:tag' tag.slug %}">{{ tag }}</a></li>
             </ol>
         </div>
     </div>
@@ -19,7 +17,7 @@
     <div class="row">
         <div class="col-md-8">
             <div class="entity_title header_purple">
-                <h1><a href="{% url 'newspaper:tag' tag %}" target="_blank">{{ tag|title }}</a></h1>
+                <h1><a href="{% url 'newspaper:tag' tag.slug %}" target="_blank">{{ tag|title }}</a></h1>
             </div>
 
             <!-- entity_title -->
@@ -29,7 +27,10 @@
                 <div class="entity_wrapper" style="margin-left:17px">
                     <div class="entity_thumb">
                         <img class="img-responsive" style="width: 775px; max-height:450px;"
-                            src="{% if news.thumbnail_url %}  {{ news.thumbnail_url }} {% else %}{{ news.thumbnail.url }}{% endif %}" alt="feature-top">
+                            src="{% if news.thumbnail_url %}{{ news.thumbnail_url }}{% elif news.thumbnail %}{{ news.thumbnail.url }}{% else %}{% static 'assets/img/feature-top.jpg' %}{% endif %}"
+                            alt="{{ news.title }}"
+                            onerror="this.src='{% static 'assets/img/feature-top.jpg' %}'"
+                            loading="lazy">
                     </div>
                     <!-- entity_thumb -->
 
@@ -62,8 +63,11 @@
                 <div class="col-md-6">
                     <div class="category_article_body  mb-5">
                         <div class="top_article_img">
-                            <img class="img-fluid" style="width: 360px; height:250px;" src="{% if news.thumbnail_url %}  {{ news.thumbnail_url }} {% else %}{{ news.thumbnail.url }}{% endif %}"
-                                alt="feature-top">
+                            <img class="img-fluid" style="width: 360px; height:250px;"
+                                src="{% if news.thumbnail_url %}{{ news.thumbnail_url }}{% elif news.thumbnail %}{{ news.thumbnail.url }}{% else %}{% static 'assets/img/category_img3.jpg' %}{% endif %}"
+                                alt="{{ news.title }}"
+                                onerror="this.src='{% static 'assets/img/category_img3.jpg' %}'"
+                                loading="lazy">
                         </div>
                         <!-- top_article_img -->
 

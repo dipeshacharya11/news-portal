@@ -1,61 +1,238 @@
 {% extends 'site/base.html' %}
 {% load static %}
+
+{% block title %}Login{% endblock %}
+
+{% block extra_css %}
+<style>
+.auth-container {
+    min-height: 80vh;
+    display: flex;
+    align-items: center;
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    padding: 2rem 0;
+}
+
+.auth-card {
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+.auth-left {
+    background: var(--gradient-primary);
+    color: white;
+    padding: 3rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.auth-left::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="2" fill="rgba(255,255,255,0.1)"/></svg>') repeat;
+    animation: float 20s infinite linear;
+}
+
+@keyframes float {
+    0% { transform: translate(-50%, -50%) rotate(0deg); }
+    100% { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+.auth-right {
+    padding: 3rem;
+}
+
+.auth-title {
+    font-size: 2.5rem;
+    font-weight: 800;
+    margin-bottom: 1rem;
+    color: var(--text-primary);
+}
+
+.auth-subtitle {
+    color: var(--text-secondary);
+    margin-bottom: 2rem;
+    font-size: 1.1rem;
+}
+
+.form-floating {
+    margin-bottom: 1.5rem;
+}
+
+.form-floating .form-control {
+    border: 2px solid #e9ecef;
+    border-radius: 12px;
+    padding: 1rem 0.75rem;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    background: #f8f9fa;
+}
+
+.form-floating .form-control:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 0.2rem rgba(0, 120, 212, 0.25);
+    background: white;
+}
+
+.form-floating label {
+    color: var(--text-muted);
+    font-weight: 500;
+}
+
+.btn-auth {
+    background: var(--gradient-primary);
+    border: none;
+    color: white;
+    padding: 1rem 2rem;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 1.1rem;
+    width: 100%;
+    transition: all 0.3s ease;
+    margin-bottom: 1.5rem;
+}
+
+.btn-auth:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 120, 212, 0.3);
+    color: white;
+}
+
+.auth-link {
+    color: var(--primary-color);
+    text-decoration: none;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.auth-link:hover {
+    color: var(--primary-dark);
+    text-decoration: underline;
+}
+
+.alert-modern {
+    border: none;
+    border-radius: 12px;
+    padding: 1rem 1.5rem;
+    margin-bottom: 1.5rem;
+    border-left: 4px solid var(--secondary-color);
+}
+
+@media (max-width: 768px) {
+    .auth-left {
+        padding: 2rem;
+        min-height: 200px;
+    }
+
+    .auth-right {
+        padding: 2rem;
+    }
+
+    .auth-title {
+        font-size: 2rem;
+    }
+}
+</style>
+{% endblock %}
+
 {% block content %}
-
-
-<!-- Feature News Section -->
-
-<section class="">
+<section class="auth-container">
     <div class="container">
-        <div class="row">
-            <div class="col-lg-8 col-md-8 col-lg-offset-2 col-md-offset-2" style="">
-                <div class="">
-                    <div class="text-center well" style="font-size: 20px;"><b>Login</b></div>
-                    <form method="POST" action="">
-                        {% csrf_token %}
-                        <div class="form_a">
-                            {% if form.errors %}
-                            {% for field in form %}
-                                {% for error in field.errors %}
-                                <div class="">
-                                    <div class="form-group">
-                                    <div class="alert alert-danger alert-dismissable">
-                                        <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
-                                        <strong>{{ error|escape }}</strong>
-                                    </div>
+        <div class="auth-card">
+            <div class="row g-0">
+                <div class="col-lg-5 d-none d-lg-block">
+                    <div class="auth-left">
+                        <div class="position-relative z-index-1">
+                            <div class="mb-4">
+                                <i class="fas fa-newspaper fa-4x mb-3"></i>
+                                <h3 class="fw-bold">Welcome Back!</h3>
+                                <p class="mb-0">Stay updated with the latest news and stories from around the world.</p>
+                            </div>
+                            <div class="text-start">
+                                <div class="d-flex align-items-center mb-2">
+                                    <i class="fas fa-check-circle me-2"></i>
+                                    <span>Breaking news alerts</span>
+                                </div>
+                                <div class="d-flex align-items-center mb-2">
+                                    <i class="fas fa-check-circle me-2"></i>
+                                    <span>Personalized content</span>
+                                </div>
+                                <div class="d-flex align-items-center">
+                                    <i class="fas fa-check-circle me-2"></i>
+                                    <span>Save articles for later</span>
                                 </div>
                             </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-7">
+                    <div class="auth-right">
+                        <div class="text-center mb-4 d-lg-none">
+                            <i class="fas fa-newspaper fa-3x text-primary mb-3"></i>
+                        </div>
+
+                        <h2 class="auth-title">Sign In</h2>
+                        <p class="auth-subtitle">Enter your credentials to access your account</p>
+
+                        <!-- Error Messages -->
+                        {% if form.errors %}
+                            {% for field in form %}
+                                {% for error in field.errors %}
+                                    <div class="alert alert-danger alert-modern">
+                                        <i class="fas fa-exclamation-triangle me-2"></i>
+                                        <strong>{{ error|escape }}</strong>
+                                    </div>
                                 {% endfor %}
                             {% endfor %}
                             {% for error in form.non_field_errors %}
-                            <div class="">
-                                <div class="form-group">
-                                <div class="alert alert-danger alert-dismissable">
-                                    <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+                                <div class="alert alert-danger alert-modern">
+                                    <i class="fas fa-exclamation-triangle me-2"></i>
                                     <strong>{{ error|escape }}</strong>
                                 </div>
-                            </div>
-                            </div>
                             {% endfor %}
-                          {% endif %}
+                        {% endif %}
+
+                        <form method="POST" action="">
+                            {% csrf_token %}
                             {% for field in form %}
-                            <div class="">
-                                <div class="form-group">
-                                    <input type="{{ field.field.widget.input_type }}" class="form-control input-lg" name="{{ field.name }}"
-                                    id="id_{{ field.name }}" placeholder="{{ field.field.widget.attrs.placeholder }}" required>
+                                <div class="form-floating">
+                                    <input type="{{ field.field.widget.input_type }}"
+                                           class="form-control"
+                                           name="{{ field.name }}"
+                                           id="id_{{ field.name }}"
+                                           placeholder="{{ field.field.widget.attrs.placeholder }}"
+                                           required>
+                                    <label for="id_{{ field.name }}">{{ field.field.widget.attrs.placeholder }}</label>
                                 </div>
-                            </div>
                             {% endfor %}
-                            <div class="">
-                                <button class="btn btn-primary" type="submit">Login</button>
-                            </div>
+
+                            <button class="btn btn-auth" type="submit">
+                                <i class="fas fa-sign-in-alt me-2"></i>Sign In
+                            </button>
+                        </form>
+
+                        <div class="text-center">
+                            <p class="mb-0">Don't have an account?
+                                <a href="{% url 'account:register' %}" class="auth-link">Create one here</a>
+                            </p>
                         </div>
-                    </form>
-                    <h4>Don't have an Account? <a href="{% url 'account:register' %}">Register Now!</a></h4>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 </section>
-
 {% endblock %}

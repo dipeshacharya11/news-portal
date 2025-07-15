@@ -1,0 +1,258 @@
+{% load static %}
+
+<!-- Enhanced Modern Footer -->
+<footer class="footer-modern bg-dark text-light py-5 mt-5">
+    <div class="container">
+        <div class="row g-4">
+            <!-- Brand Section -->
+            <div class="col-lg-4 col-md-6">
+                <div class="footer-brand mb-4">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="brand-icon me-3">
+                            <i class="fas fa-newspaper text-primary fs-2"></i>
+                        </div>
+                        <div class="brand-text">
+                            <h4 class="brand-main fw-bold text-primary mb-0">NBC</h4>
+                            <p class="brand-sub text-muted mb-0 small">News Portal</p>
+                        </div>
+                    </div>
+                    <p class="text-muted mb-4">
+                        Your trusted source for breaking news, latest updates, and in-depth coverage of world events. 
+                        Stay informed with NBC News Portal.
+                    </p>
+                    <div class="social-links">
+                        <a href="#" class="text-muted me-3" aria-label="Facebook">
+                            <i class="fab fa-facebook-f"></i>
+                        </a>
+                        <a href="#" class="text-muted me-3" aria-label="Twitter">
+                            <i class="fab fa-twitter"></i>
+                        </a>
+                        <a href="#" class="text-muted me-3" aria-label="Instagram">
+                            <i class="fab fa-instagram"></i>
+                        </a>
+                        <a href="#" class="text-muted me-3" aria-label="YouTube">
+                            <i class="fab fa-youtube"></i>
+                        </a>
+                        <a href="#" class="text-muted" aria-label="LinkedIn">
+                            <i class="fab fa-linkedin-in"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Links -->
+            <div class="col-lg-2 col-md-6">
+                <div class="footer-section mb-4">
+                    <h5 class="text-white mb-3">Quick Links</h5>
+                    <ul class="list-unstyled">
+                        <li class="mb-2">
+                            <a href="{% url 'newspaper:home' %}" class="text-muted text-decoration-none">
+                                <i class="fas fa-home me-2"></i>Home
+                            </a>
+                        </li>
+                        <li class="mb-2">
+                            <a href="{% url 'newspaper:latest_news' %}" class="text-muted text-decoration-none">
+                                <i class="fas fa-clock me-2"></i>Latest News
+                            </a>
+                        </li>
+                        <li class="mb-2">
+                            <a href="{% url 'newspaper:trending' %}" class="text-muted text-decoration-none">
+                                <i class="fas fa-fire me-2"></i>Trending
+                            </a>
+                        </li>
+                        <li class="mb-2">
+                            <a href="{% url 'newspaper:breaking_news' %}" class="text-muted text-decoration-none">
+                                <i class="fas fa-broadcast-tower me-2"></i>Breaking News
+                            </a>
+                        </li>
+                        <li class="mb-2">
+                            <a href="{% url 'newspaper:category_list' %}" class="text-muted text-decoration-none">
+                                <i class="fas fa-th-large me-2"></i>Categories
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Categories -->
+            <div class="col-lg-2 col-md-6">
+                <div class="footer-section mb-4">
+                    <h5 class="text-white mb-3">Categories</h5>
+                    <ul class="list-unstyled">
+                        {% for category in categories|slice:":5" %}
+                        <li class="mb-2">
+                            <a href="{{ category.get_absolute_url }}" class="text-muted text-decoration-none">
+                                <i class="fas fa-{{ category.icon|default:'newspaper' }} me-2"></i>
+                                {{ category.name }}
+                            </a>
+                        </li>
+                        {% endfor %}
+                        {% if categories|length > 5 %}
+                        <li class="mb-2">
+                            <a href="{% url 'newspaper:category_list' %}" class="text-muted text-decoration-none">
+                                <i class="fas fa-ellipsis-h me-2"></i>View All
+                            </a>
+                        </li>
+                        {% endif %}
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Support -->
+            <div class="col-lg-2 col-md-6">
+                <div class="footer-section mb-4">
+                    <h5 class="text-white mb-3">Support</h5>
+                    <ul class="list-unstyled">
+                        <li class="mb-2">
+                            <a href="{% url 'newspaper:about' %}" class="text-muted text-decoration-none">
+                                <i class="fas fa-info-circle me-2"></i>About Us
+                            </a>
+                        </li>
+                        <li class="mb-2">
+                            <a href="{% url 'newspaper:contact' %}" class="text-muted text-decoration-none">
+                                <i class="fas fa-envelope me-2"></i>Contact
+                            </a>
+                        </li>
+                        <li class="mb-2">
+                            <a href="{% url 'newspaper:privacy' %}" class="text-muted text-decoration-none">
+                                <i class="fas fa-shield-alt me-2"></i>Privacy Policy
+                            </a>
+                        </li>
+                        <li class="mb-2">
+                            <a href="{% url 'newspaper:terms' %}" class="text-muted text-decoration-none">
+                                <i class="fas fa-file-contract me-2"></i>Terms of Service
+                            </a>
+                        </li>
+                        <li class="mb-2">
+                            <a href="#" class="text-muted text-decoration-none">
+                                <i class="fas fa-question-circle me-2"></i>Help Center
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Newsletter -->
+            <div class="col-lg-2 col-md-6">
+                <div class="footer-section mb-4">
+                    <h5 class="text-white mb-3">Newsletter</h5>
+                    <p class="text-muted small mb-3">
+                        Stay updated with our latest news and updates.
+                    </p>
+                    <form class="newsletter-form">
+                        <div class="input-group mb-3">
+                            <input type="email" class="form-control" placeholder="Your email" aria-label="Email address">
+                            <button class="btn btn-primary" type="submit">
+                                <i class="fas fa-paper-plane"></i>
+                            </button>
+                        </div>
+                    </form>
+                    <p class="text-muted small">
+                        <i class="fas fa-lock me-1"></i>
+                        We respect your privacy
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer Bottom -->
+        <div class="footer-bottom border-top border-secondary pt-4 mt-4">
+            <div class="row align-items-center">
+                <div class="col-md-6">
+                    <p class="text-muted mb-0 small">
+                        &copy; {% now "Y" %} NBC News Portal. All rights reserved.
+                    </p>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <div class="footer-links">
+                        <a href="#" class="text-muted text-decoration-none me-3 small">Sitemap</a>
+                        <a href="#" class="text-muted text-decoration-none me-3 small">RSS Feed</a>
+                        <a href="#" class="text-muted text-decoration-none small">Mobile App</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<!-- Back to Top Button -->
+<button id="backToTop" class="btn btn-primary position-fixed bottom-0 end-0 m-4 d-none" 
+        style="z-index: 1000; border-radius: 50%; width: 50px; height: 50px;">
+    <i class="fas fa-arrow-up"></i>
+</button>
+
+<script>
+// Back to Top functionality
+document.addEventListener('DOMContentLoaded', function() {
+    const backToTopButton = document.getElementById('backToTop');
+    
+    // Show/hide back to top button
+window.addEventListener('scroll', function() {
+    if (window.pageYOffset > 300) {
+            backToTopButton.classList.remove('d-none');
+    } else {
+            backToTopButton.classList.add('d-none');
+    }
+});
+
+    // Smooth scroll to top
+    backToTopButton.addEventListener('click', function() {
+    window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+        });
+    });
+    
+    // Newsletter form submission
+    const newsletterForm = document.querySelector('.newsletter-form');
+    if (newsletterForm) {
+        newsletterForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const email = this.querySelector('input[type="email"]').value;
+            
+            // Simulate newsletter subscription
+            const button = this.querySelector('button');
+            const originalText = button.innerHTML;
+            button.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+            button.disabled = true;
+            
+            setTimeout(() => {
+                button.innerHTML = '<i class="fas fa-check"></i>';
+                setTimeout(() => {
+                    button.innerHTML = originalText;
+                    button.disabled = false;
+                    this.querySelector('input[type="email"]').value = '';
+                }, 2000);
+            }, 1000);
+        });
+    }
+    
+    // Social links hover effects
+    const socialLinks = document.querySelectorAll('.social-links a');
+    socialLinks.forEach(link => {
+        link.addEventListener('mouseenter', function() {
+            this.classList.remove('text-muted');
+            this.classList.add('text-primary');
+        });
+        
+        link.addEventListener('mouseleave', function() {
+            this.classList.remove('text-primary');
+            this.classList.add('text-muted');
+        });
+    });
+    
+    // Footer links hover effects
+    const footerLinks = document.querySelectorAll('.footer-section a');
+    footerLinks.forEach(link => {
+        link.addEventListener('mouseenter', function() {
+            this.classList.remove('text-muted');
+            this.classList.add('text-white');
+        });
+        
+        link.addEventListener('mouseleave', function() {
+            this.classList.remove('text-white');
+            this.classList.add('text-muted');
+        });
+    });
+});
+</script>

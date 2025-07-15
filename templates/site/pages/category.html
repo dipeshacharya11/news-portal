@@ -2,124 +2,102 @@
 {% load static %}
 {% block content %}
 
-<section class="breadcrumb_section">
+<section class="breadcrumb_section mb-3">
     <div class="container">
         <div class="row">
             <ol class="breadcrumb">
                 <li><a href="{% url 'newspaper:home'%}">Home</a></li>
-                <!-- <li><a href="#">News</a></li>
-                <li><a href="#">Tech</a></li> -->
                 <li class="active"><a href="{{ category.get_absolute_url }}">{{ category }}</a></li>
             </ol>
         </div>
     </div>
 </section>
 
-<div class="container">
-    <div class="row">
-        <div class="col-md-8">
-            <div class="entity_title header_purple">
-                <h1><a href="{{ category.get_absolute_url }}" target="_blank">{{ category }}</a></h1>
+<div class="container-fluid">
+    <div class="row g-4">
+        <!-- Main Content -->
+        <div class="col-lg-8 col-md-12">
+            <div class="section-header mb-4">
+                <h1 class="section-title">{{ category }}</h1>
             </div>
-            <!-- entity_title -->
-            <div class="row">
+            <div class="row g-4">
                 {% for news in object_list %}
-                {% if forloop.first %}
-                <div class="entity_wrapper" style="margin-left:17px">
-                    <div class="entity_thumb">
-                        <img class="img-responsive" style="width: 775px; max-height:450px;"
-                            src="{% if news.thumbnail_url %}  {{ news.thumbnail_url }} {% else %}{{ news.thumbnail.url }}{% endif %}" alt="feature-top">
+                    {% if forloop.first %}
+                    <!-- Featured Card -->
+                    <div class="col-12">
+                        <article class="news-card hero-story">
+                            <div class="news-image hero-image">
+                                <img src="{% if news.thumbnail_url %}{{ news.thumbnail_url }}{% elif news.thumbnail %}{{ news.thumbnail.url }}{% else %}{% static 'assets/img/feature-top.jpg' %}{% endif %}"
+                                     alt="{{ news.title }}"
+                                     onerror="this.src='{% static 'assets/img/feature-top.jpg' %}'"
+                                     loading="lazy">
+                                <div class="position-absolute top-0 start-0 m-3">
+                                    <span class="badge bg-danger">BREAKING</span>
+                                </div>
+                                <div class="position-absolute top-0 end-0 m-3">
+                                    <span class="news-category">{{ news.category.name }}</span>
+                                </div>
+                            </div>
+                            <div class="news-content hero-content">
+                                <h2 class="news-title hero-title mb-3">
+                                    <a href="{{ news.get_absolute_url }}">{{ news.title }}</a>
+                                </h2>
+                                <div class="news-meta hero-meta mb-2">
+                                    <span><i class="fas fa-calendar"></i> {{ news.timestamp|date:"M j, Y" }}</span>
+                                    <span><i class="fas fa-user"></i> {{ news.author|title }}</span>
+                                    <span><i class="fas fa-comments"></i> {{ news.get_comment_count }} comments</span>
+                                </div>
+                                <p class="news-excerpt hero-excerpt">{{ news.description|truncatechars:250 }}</p>
+                            </div>
+                        </article>
                     </div>
-                    <!-- entity_thumb -->
-
-                    <div class="entity_title">
-                        <a href="{{ news.get_absolute_url }}" target="_blank">
-                            <h3> {{ news.title }} </h3>
-                        </a>
+                    {% else %}
+                    <!-- Grid Cards -->
+                    <div class="col-md-6 col-12">
+                        <article class="news-card h-100">
+                            <div class="news-image">
+                                <img src="{% if news.thumbnail_url %}{{ news.thumbnail_url }}{% elif news.thumbnail %}{{ news.thumbnail.url }}{% else %}{% static 'assets/img/category_img2.jpg' %}{% endif %}"
+                                     alt="{{ news.title }}"
+                                     onerror="this.src='{% static 'assets/img/category_img2.jpg' %}'"
+                                     loading="lazy">
+                                <div class="position-absolute top-0 end-0 m-2">
+                                    <span class="news-category">{{ news.category.name }}</span>
+                                </div>
+                            </div>
+                            <div class="news-content p-3">
+                                <h3 class="news-title h5 mb-2">
+                                    <a href="{{ news.get_absolute_url }}">{{ news.title|truncatechars:100 }}</a>
+                                </h3>
+                                <div class="news-meta mb-2">
+                                    <span><i class="fas fa-calendar"></i> {{ news.timestamp|date:"M j, Y" }}</span>
+                                    <span><i class="fas fa-user"></i> {{ news.author|title }}</span>
+                                </div>
+                                <p class="news-excerpt">{{ news.description|truncatechars:120 }}</p>
+                            </div>
+                        </article>
                     </div>
-                    <!-- entity_title -->
-
-                    <div class="entity_meta">
-                        <a href="#">10Aug- 2015</a>, by: <a href="#">{{ news.author|title }}</a>
-                    </div>
-                    <!-- entity_meta -->
-
-                    <div class="entity_content">
-                        {{ news.description|truncatechars:255 }}
-                    </div>
-                    <!-- entity_content -->
-
-                    <div class="entity_social">
-                        <span><i class="fa fa-share-alt"></i>424 <a href="#">Shares</a> </span>
-                        <span><i class="fa fa-comments-o"></i>{{ news.get_comment_count }} <a href="#">Comments</a> </span>
-                    </div>
-                    <!-- entity_social -->
-
-                </div>
-                <!-- entity_wrapper -->
-                {% else %}
-                <div class="col-md-6">
-                    <div class="category_article_body  mb-5">
-                        <div class="top_article_img">
-                            <img class="img-fluid" style="width: 360px; height:250px;" src="{% if news.thumbnail_url %}  {{ news.thumbnail_url }} {% else %}{{ news.thumbnail.url }}{% endif %}"
-                                alt="feature-top">
-                        </div>
-                        <!-- top_article_img -->
-
-                        <div class="category_article_title">
-                            <h5><a href="{{ news.get_absolute_url }}" target="_blank">{{ news.title }} </a></h5>
-                        </div>
-                        <!-- category_article_title -->
-
-                        <div class="article_date">
-                            <a href="#">{{ news.timestamp|date:"j M Y" }}</a>, by: <a href="#">{{ news.author|title }}</a>
-                        </div>
-                        <!-- article_date -->
-
-                        <div class="category_article_content">
-                            {{ news.description|truncatechars:255 }}
-                        </div>
-                        <!-- category_article_content -->
-
-                        <div class="article_social">
-                            <span><a href="#"><i class="fa fa-share-alt"></i>424 </a> Shares</span>
-                            <span><i class="fa fa-comments-o"></i><a href="#">{{ news.get_comment_count }}</a> Comments</span>
-                        </div>
-                        <!-- article_social -->
-
-                    </div>
-                    <!-- category_article_body -->
-                </div>
-                {% if forloop.counter0|divisibleby:2 %}
-                <div class="col-md-12 mt-5 mb-5">
-                    <div class="widget_advertisement">
-                        <img class="img-responsive" src="{% static 'assets/img/category_advertisement.jpg' %}"
-                            alt="feature-top">
-                    </div>
-                </div>
-                {% endif %}
-                {% endif %}
-
+                    {% endif %}
                 {% endfor %}
-
-                <!-- col-md-6 -->
-
             </div>
-            <!-- row -->
-            <!-- widget_advertisement -->
             {% if is_paginated %}
                 {% include 'site/includes/_paginator.html' %}
             {% endif %}
-            <!-- navigation -->
         </div>
-        <!-- col-md-8 -->
-        <!-- sidebar -->
-        {% include 'site/includes/_sidebar.html' %}
-        <!-- col-md-4 -->
-
+        <!-- Sidebar -->
+        <div class="col-lg-4 col-md-12">
+            <aside>
+                <div class="sidebar mb-4">
+                    <h5 class="sidebar-title">Top Stories</h5>
+                    {% for news in popular_news|slice:":5" %}
+                    <div class="sidebar-item mb-3">
+                        <a href="{{ news.get_absolute_url }}" class="fw-bold d-block">{{ news.title|truncatechars:80 }}</a>
+                        <div class="small text-muted mt-1">{{ news.timestamp|timesince }} ago</div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% include 'site/includes/_sidebar.html' %}
+            </aside>
+        </div>
     </div>
-    <!-- row -->
-
 </div>
-<!-- container -->
 {% endblock %}
